@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dngo's tetris!</title>
+    <link rel="stylesheet" type="text/css" href="tetris.css" />
+</head>
+<body>
+    <div class="game">
+        <canvas id="tetris"></canvas>
+    </div>
+    <div class="side">
+        <div class="title">
+            <h1>dngo's TETRIS</h1>
+        </div>
+        <div class="score">
+            <h4>SCORE:</h4>
+            <label id="player-score"></label>
+        </div>
+        <div class="level">
+            <h4>LEVEL:</h4>
+            <label id="player-level"></label>
+        </div>
+        <div class="controls">
+            <h4>CONTROLS:</h4>
+            <label id="player-controls">
+                <p>left: A or LeftArrow</p>
+                <p>right: D or RightArrow</p>
+                <p>rotate: B and N</p>
+                <p>drop: not supported yet : (</p>
+            </label>
+        </div>
+        <div class="sound">
+            <h4>SOUND: not supported yet : (</h4>
+            <label class="switch" >
+                <input id="sound-switch" type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+    <script src="tetris.js"></script>
+</body>
+</html>
