@@ -7,22 +7,25 @@ body {
   align-items: center;
   background: #19132fcb;
   color: rgb(164, 185, 202);
-  font-family: Arial, sans-serif;
+  font-family: 'Press Start 2P', sans-serif;
   font-size: 1.2em;
   display: flex;
   flex-direction: row;
 }
 
 label {
-  font-family: Arial, sans-serif;
+  font-family: 'Press Start 2P', sans-serif;
+  font-size: smaller;
 }
 
 h1, h4 {
   text-shadow: rgb(0, 0, 0);
-  color: rgb(243, 33, 222);
+  color: rgb(185, 22, 169);
+  padding: 1%;
 }
 p {
-  font-size: .8em;
+  font-size: .7em;
+  padding: 1px;
 }
 
 .side {
@@ -32,8 +35,9 @@ p {
 }
 
 .title, .score, .level, .controls, .sound {
-  border: 5px solid #fff;
+  border: 5px solid rgb(212, 161, 218);
   border-radius: 2px;
+  padding: 1%;
 }
 
 
@@ -41,18 +45,16 @@ p {
 .switch {
   position: relative;
   display: inline-block;
+  margin: 2%;
   width: 60px;
   height: 34px;
 }
-
 /* Hide default HTML checkbox */
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
-
-
 /* The slider */
 .slider {
   position: absolute;

@@ -15,11 +15,14 @@ const player = {
     pos: {x: 0, y: 0},
     piece: null,
     score: 0,
+    lines: 0,
     level: 1,
 }
 
 let arena;
 
+let tempLines = 0;  // lines to keep track for each level
+const NEXTLEVELLINES = 7;  // number of lines needed for next level
 let dropCounter = 0;
 let dropInterval = 700;  // number of milliseconds for each drop
 let lastTime = 0;        
@@ -38,6 +41,7 @@ function setupGame() {
 
     updateScore();
     updateLevel();
+    updateLines();
     playerReset();
 }
 
@@ -46,11 +50,12 @@ function update(time = 0) {
     lastTime = time;
 
     dropCounter += delta;
-    if (dropCounter > dropInterval) playerDrop();
+    if (dropCounter > dropInterval/(player.level*.5)) playerDrop();
     
     draw();
     requestAnimationFrame(update);
 }
+
 // Creates a tetromino piece based on the parameter letter
 function createTetromino(type) {
     if (type === 'T') {         // T tetromino
@@ -127,8 +132,12 @@ function playerReset() {
     // GAME OVER. If we collide right when we generate a new piece, we have hit the top. 
     if (collision(arena, player)) {
         arena.forEach(row => row.fill(0));  // reset arena
-        player.score = 0;
+        player.score = 0;   // reset score
+        player.level = 1;   // reset level
+        player.lines = 0;   // reset number of lines 
         updateScore();
+        updateLevel();
+        updateLines();
     }
 }
 
@@ -239,11 +248,11 @@ function merge(arena, player) {
     });
 }
 
-// Check if there are rows to delete
+// Check if there are rows to delete, and adds score/level accordingly
 function arenaSweep() {
     let rowCount = 1;
-    outer: for (let y = arena.length-1; y > 0; y--) {
-        for (let x = 0; x < arena[y].length; x++) {
+    outer: for (let y = arena.length-1; y > 0; y--) {   // scan from the bottom up
+        for (let x = 0; x < arena[y].length; x++) {     // from left to right
             if (arena[y][x] === 0) {
                 continue outer;  // continue our OUTER for loop
             }
@@ -252,19 +261,32 @@ function arenaSweep() {
         const row = arena.splice(y, 1)[0].fill(0);  // takes the row from index y out and blanks it
         arena.unshift(row);  // add on the top of the arena
         y++;
-
-        player.score += rowCount * 10;
+        
+        player.score += rowCount * 10;  // add to the score
         rowCount *= 2;  // For every row, double the amount of points it would get
+        
+        // update lines and level (if we got enough lines)
+        player.lines++;
+        tempLines++;
+        if (tempLines >= NEXTLEVELLINES) {  // reached enough lines to get to next level
+            tempLines = 0;
+            player.level++;
+            updateLevel();
+        }
     }
     updateScore();
+    updateLines();
 }
 
+// UPDATE TEXT ON WEBPAGE
 function updateScore() {
     document.getElementById('player-score').innerText = player.score;
 }
-
 function updateLevel() {
     document.getElementById('player-level').innerText = player.level;
+}
+function updateLines() {
+    document.getElementById('player-lines').innerText = player.lines;
 }
 
 // ALL THE KEYS THAT ARE USED
