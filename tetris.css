@@ -23,9 +23,36 @@ h1, h4 {
   color: rgb(185, 22, 169);
   padding: 1%;
 }
+
 p {
   font-size: .7em;
   padding: 1px;
+}
+
+button {
+  font-family: 'Press Start 2P', sans-serif;
+  text-align: center;
+  width: inherit;
+  color: rgb(183, 143, 169);
+  background-color: rgb(185, 22, 169);
+  border-color: rgb(255, 99, 71);
+  margin: 5% 0%;
+  padding: 2%;
+}
+
+.game {
+  display: grid;
+  align-items: center;
+  text-align: center;
+}
+
+#status-label {
+  animation: blinker .8s step-end infinite;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
 }
 
 .side {

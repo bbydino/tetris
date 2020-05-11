@@ -1,5 +1,18 @@
 let canvas;
 let ctx;
+let pauseBtn;
+let resetBtn;
+let myReq;
+let pause = true;
+
+let arena;
+
+let tempLines = 0;  // lines to keep track for each level
+const NEXTLEVELLINES = 7;  // number of lines needed for next level
+
+let dropCounter = 0;
+let dropInterval = 700;  // number of milliseconds for each drop
+let lastTime = 0;     
 
 // The tetromino pieces
 const TETROMINOS = [
@@ -9,7 +22,7 @@ const TETROMINOS = [
 // Colors of the tetrominos. The INDECES MATTER FOR THIS PROGRAM.
 const COLORS = [
     null, 'purple', 'yellow', 'orange', 'blue', 'cyan', 'lime', 'red'
-]
+];
 
 const player = {
     pos: {x: 0, y: 0},
@@ -19,30 +32,39 @@ const player = {
     level: 1,
 }
 
-let arena;
-
-let tempLines = 0;  // lines to keep track for each level
-const NEXTLEVELLINES = 7;  // number of lines needed for next level
-let dropCounter = 0;
-let dropInterval = 700;  // number of milliseconds for each drop
-let lastTime = 0;        
-
 function setupGame() {
+    // Setup canvas
     canvas = document.getElementById('tetris');
     ctx = canvas.getContext('2d');
     canvas.width = 240;
     canvas.height = 420;
     ctx.scale(15, 15);
 
+    // Setup buttons
+    pauseBtn = document.getElementById('pausebtn');
+    pauseBtn.addEventListener('click', pauseButtonHandler);
+    pauseBtn.disabled = true;
+    pauseBtn.style.opacity = 0;
+    resetBtn = document.getElementById('resetbtn');
+    resetBtn.addEventListener('click', resetButtonHandler);
+    resetBtn.style.opacity = 1;
+    resetBtn.disabled = false;
+
+    // Create the arena
     arena = createMatrix(16, 28);
 
     // Add key press listener
     document.addEventListener('keydown', handleKeyPress);
 
+    // Load up the scores and reset the player.
     updateScore();
     updateLevel();
     updateLines();
     playerReset();
+
+    // Draw the empty canvas
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);   
 }
 
 function update(time = 0) {
@@ -50,10 +72,12 @@ function update(time = 0) {
     lastTime = time;
 
     dropCounter += delta;
-    if (dropCounter > dropInterval/(player.level*.5)) playerDrop();
+    if (dropCounter > dropInterval/(player.level*.8)) playerDrop();
     
     draw();
-    requestAnimationFrame(update);
+    if (pause) return;
+    myReq = undefined;
+    startGame();
 }
 
 // Creates a tetromino piece based on the parameter letter
@@ -124,20 +148,19 @@ function playerReset() {
             TETROMINOS[(Math.random() * TETROMINOS.length) | 0]
             );
 
-    // Put the piece in the middle of the grid
+    // Put the piece in the middle of the top row
     player.pos.y = 0;
     player.pos.x = (arena[0].length / 2 | 0) -
                     (player.piece[0].length / 2 | 0);  // | 0 is a floor
 
     // GAME OVER. If we collide right when we generate a new piece, we have hit the top. 
     if (collision(arena, player)) {
-        arena.forEach(row => row.fill(0));  // reset arena
-        player.score = 0;   // reset score
-        player.level = 1;   // reset level
-        player.lines = 0;   // reset number of lines 
-        updateScore();
-        updateLevel();
-        updateLines();
+        stopGame();
+        document.getElementById('status-label').innerText = "GAME OVER...";
+        pauseBtn.disabled = true;
+        pauseBtn.style.opacity = 0;
+        resetBtn.style.opacity = 1;
+        resetBtn.disabled = false;
     }
 }
 
@@ -157,9 +180,22 @@ function playerDrop() {
     if (collision(arena, player)) {
         player.pos.y--;
         merge(arena, player);
-        playerReset();
         arenaSweep();
+        playerReset();
     }
+}
+
+// MAKES THE PIECE GO ALL THE WAY TO THE BOTTOM
+function playerDropAll() {
+    // Keep incrementing y pos until there is a collision. When there is, merge the piece, get new piece
+    while(!collision(arena, player)) {
+        player.pos.y++;
+        dropCounter = 0;
+    }
+    player.pos.y--;
+    merge(arena, player);
+    arenaSweep();
+    playerReset();
 }
 
 // ROTATES THE PLAYER PIECE (CW OR CCW) GIVEN A DIRECTION PARAMETER
@@ -179,6 +215,7 @@ function playerRotate(dir) {
     }
 }
 
+// Draws the arena and player piece
 function draw() {
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);   
@@ -187,6 +224,7 @@ function draw() {
     drawMatrix(player.piece, player.pos);  // draw the current piece
 }
 
+// DRAWS A MATRIX with the shift
 function drawMatrix(matrix, shift) {
     matrix.forEach((row, y) => {
         row.forEach((value, x) => {
@@ -239,10 +277,13 @@ function collision(arena, player) {
 
 // merges the arena and player matrices
 function merge(arena, player) {
+    console.log("merge");
     player.piece.forEach((row, y)=> {
         row.forEach((value, x) => {
             if (value !== 0) {
                 arena[y + player.pos.y][x + player.pos.x] = value;
+                //console.log(`y:${y}, x:${x}, pos.y:${player.pos.y}, pos.x:${player.pos.x}`);
+                //console.log(`y:${y + player.pos.y}, x:${x + player.pos.x}`);
             }
         });
     });
@@ -291,6 +332,7 @@ function updateLines() {
 
 // ALL THE KEYS THAT ARE USED
 function handleKeyPress(e) {
+    if (pause) return;
     if (e.keyCode === 83 || e.keyCode === 40) {       // 's' or down
         playerDrop();
     }
@@ -307,13 +349,68 @@ function handleKeyPress(e) {
         playerRotate(1);
     }
     else if (e.keyCode === 32) {  // 'space bar' or full drop
+        playerDropAll();
     }
 }
+// PAUSE THE GAME BUTTON HANDLER
+function pauseButtonHandler() {
+    if (pause) {        // unpause if prevously paused
+        startGame();
+        pauseBtn.innerText = "Pause";
+        document.getElementById('status-label').innerText = "Playing!!!";
+        document.getElementById('status-label').style.animation = "none";  // cancel animation while playing
+    }
+    else {              // pause if prevously unpaused
+        stopGame();
+        pauseBtn.innerText = "Unpause";
+        document.getElementById('status-label').innerText = "Paused...";
+        document.getElementById('status-label').style.animation = "";  // inherits style from CSS file
+    }
+}
+// RESET GAME BUTTON HANDLER. reset settings and start the game! 
+function resetButtonHandler() {
+    resetGame();
+    startGame();
+    pauseBtn.disabled = false;
+    pauseBtn.style.opacity = 1;
+    resetBtn.style.opacity = 0;
+    resetBtn.disabled = true;
+    document.getElementById('status-label').innerText = "Playing!!!";
+    document.getElementById('status-label').style.animation = "none";  // Cancel animation while playing
+}
+// MAKES ALL BUTTONS NOT FOCUSED AFTER CLICKS!
+document.querySelectorAll("button").forEach(item => {
+    item.addEventListener('focus', ()=> {
+        item.blur();
+    });
+});
 
-
+// STARTS THE ANIMATION LOOP
+function startGame() {
+    if (!myReq) {
+        pause = false;
+        myReq = requestAnimationFrame(update);
+    }
+}
+// STOPS THE ANIMATION LOOP
+function stopGame() {
+    if (myReq) {
+        pause = true;
+        cancelAnimationFrame(myReq);
+        myReq = undefined;
+    }
+}
+// RESETS ALL THE PLAYER SETTINGS
+function resetGame() {
+    arena.forEach(row => row.fill(0));  // reset arena
+    player.score = 0;   // reset score
+    player.level = 1;   // reset level
+    player.lines = 0;   // reset number of lines 
+    updateScore();
+    updateLevel();
+    updateLines();
+    playerReset();
+}
 
 // set up the canvas
 setupGame();
-
-// start the game
-update();
