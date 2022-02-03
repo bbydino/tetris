@@ -3,6 +3,7 @@ const TETROMINOS = ["T", "O", "L", "J", "I", "S", "Z"];
 const START_LEVEL = 10; // default start level
 const ARENA_WIDTH = 10;
 const ARENA_HEIGHT = 24;
+const BG_COLOR = "#000000";
 
 let canvas;
 let ctx;
@@ -18,20 +19,19 @@ let tempLines = 0; // lines to keep track for each level
 let dropCounter = 0;
 let dropInterval = 700; // number of milliseconds for each drop
 let lastTime = 0;
-let sevenBag = TETROMINOS.map((x) => x);
+let sevenBag = [];
 
 // The tetromino pieces
-
 // Colors of the tetrominos. The INDECES MATTER FOR THIS PROGRAM.
 const COLORS = [
   null,
-  "purple",
-  "yellow",
-  "orange",
-  "blue",
-  "cyan",
-  "lime",
-  "red",
+  "#994CCC",
+  "#FFD500",
+  "#FF971C",
+  "#0341AE",
+  "#66F5F9",
+  "#72CB3B",
+  "#FF3213",
 ];
 
 const player = {
@@ -41,6 +41,11 @@ const player = {
   lines: 0,
   level: 1,
 };
+
+// reset the seven bag to all 7 tetrominos
+function resetSevenBag() {
+  sevenBag = TETROMINOS.map((x) => x);
+}
 
 function setupGame() {
   // Setup canvas
@@ -72,7 +77,7 @@ function setupGame() {
   updateLines();
 
   // Draw the empty canvas
-  ctx.fillStyle = "black";
+  ctx.fillStyle = BG_COLOR;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -154,7 +159,7 @@ function createMatrix(w, h) {
 
 function playerReset() {
   // reset the bag if we have gotten all 7 already
-  if (sevenBag.length === 0) sevenBag = TETROMINOS.map((x) => x);
+  if (sevenBag.length === 0) resetSevenBag();
 
   // Generate a random tetromino
   // remove from seven bag when generated
@@ -231,7 +236,7 @@ function playerRotate(dir) {
 
 // Draws the arena and player piece
 function draw() {
-  ctx.fillStyle = "black";
+  ctx.fillStyle = BG_COLOR;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   drawMatrix(arena, { x: 0, y: 0 }); // Draw the stuck pieces, no shift
@@ -382,6 +387,7 @@ function pauseButtonHandler() {
 }
 // RESET GAME BUTTON HANDLER. reset settings and start the game!
 function resetButtonHandler() {
+  resetSevenBag();
   resetGame();
   startGame();
   pauseBtn.disabled = false;
