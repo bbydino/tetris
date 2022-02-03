@@ -1,3 +1,9 @@
+const NEXTLEVELLINES = 7; // number of lines needed for next level
+const TETROMINOS = ["T", "O", "L", "J", "I", "S", "Z"];
+const START_LEVEL = 10; // default start level
+const ARENA_WIDTH = 10;
+const ARENA_HEIGHT = 24;
+
 let canvas;
 let ctx;
 let pauseBtn;
@@ -8,14 +14,13 @@ let pause = true;
 let arena;
 
 let tempLines = 0; // lines to keep track for each level
-const NEXTLEVELLINES = 7; // number of lines needed for next level
 
 let dropCounter = 0;
 let dropInterval = 700; // number of milliseconds for each drop
 let lastTime = 0;
+let sevenBag = TETROMINOS.map((x) => x);
 
 // The tetromino pieces
-const TETROMINOS = ["T", "O", "L", "J", "I", "S", "Z"];
 
 // Colors of the tetrominos. The INDECES MATTER FOR THIS PROGRAM.
 const COLORS = [
@@ -41,8 +46,8 @@ function setupGame() {
   // Setup canvas
   canvas = document.getElementById("tetris");
   ctx = canvas.getContext("2d");
-  canvas.width = 240;
-  canvas.height = 420;
+  canvas.width = 15 * ARENA_WIDTH;
+  canvas.height = 15 * ARENA_HEIGHT;
   ctx.scale(15, 15);
 
   // Setup buttons
@@ -56,7 +61,7 @@ function setupGame() {
   resetBtn.disabled = false;
 
   // Create the arena
-  arena = createMatrix(16, 28);
+  arena = createMatrix(ARENA_WIDTH, ARENA_HEIGHT);
 
   // Add key press listener
   document.addEventListener("keydown", handleKeyPress);
@@ -65,7 +70,6 @@ function setupGame() {
   updateScore();
   updateLevel();
   updateLines();
-  playerReset();
 
   // Draw the empty canvas
   ctx.fillStyle = "black";
@@ -149,10 +153,14 @@ function createMatrix(w, h) {
 }
 
 function playerReset() {
+  // reset the bag if we have gotten all 7 already
+  if (sevenBag.length === 0) sevenBag = TETROMINOS.map((x) => x);
+
   // Generate a random tetromino
-  player.piece = createTetromino(
-    TETROMINOS[(Math.random() * TETROMINOS.length) | 0]
-  );
+  // remove from seven bag when generated
+  let idx = (Math.random() * sevenBag.length) | 0;
+  player.piece = createTetromino(sevenBag[idx]);
+  sevenBag.splice(idx, 1);
 
   // Put the piece in the middle of the top row
   player.pos.y = 0;
@@ -345,11 +353,11 @@ function handleKeyPress(e) {
   } else if (e.keyCode === 68 || e.keyCode === 39) {
     // 'd' or right
     playerMove(1);
-  } else if (e.keyCode === 66) {
-    // 'b' or rotate CW
+  } else if (e.keyCode === 87) {
+    // 'w' or rotate CW
     playerRotate(-1);
-  } else if (e.keyCode === 78) {
-    // 'n' or rotate CCW
+  } else if (e.keyCode === 38) {
+    // 'uparrow' or rotate CCW
     playerRotate(1);
   } else if (e.keyCode === 32) {
     // 'space bar' or full drop
@@ -409,7 +417,7 @@ function stopGame() {
 function resetGame() {
   arena.forEach((row) => row.fill(0)); // reset arena
   player.score = 0; // reset score
-  player.level = 1; // reset level
+  player.level = START_LEVEL; // reset level
   player.lines = 0; // reset number of lines
   updateScore();
   updateLevel();
