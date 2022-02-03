@@ -1,4 +1,4 @@
-const NEXTLEVELLINES = 7; // number of lines needed for next level
+const NEXTLEVELLINES = 4; // number of lines needed for next level
 const TETROMINOS = ["T", "O", "L", "J", "I", "S", "Z"];
 const START_LEVEL = 10; // default start level
 const ARENA_WIDTH = 10;
@@ -157,6 +157,15 @@ function createMatrix(w, h) {
   return matrix;
 }
 
+// game over
+function gameOverMessage() {
+  document.getElementById("status-label").innerText = "GAME OVER...";
+  pauseBtn.disabled = true;
+  pauseBtn.style.opacity = 0;
+  resetBtn.style.opacity = 1;
+  resetBtn.disabled = false;
+}
+
 function playerReset() {
   // reset the bag if we have gotten all 7 already
   if (sevenBag.length === 0) resetSevenBag();
@@ -175,11 +184,7 @@ function playerReset() {
   // GAME OVER. If we collide right when we generate a new piece, we have hit the top.
   if (collision(arena, player)) {
     stopGame();
-    document.getElementById("status-label").innerText = "GAME OVER...";
-    pauseBtn.disabled = true;
-    pauseBtn.style.opacity = 0;
-    resetBtn.style.opacity = 1;
-    resetBtn.disabled = false;
+    gameOverMessage();
   }
 }
 
@@ -348,16 +353,19 @@ function updateLines() {
 
 // ALL THE KEYS THAT ARE USED
 function handleKeyPress(e) {
+  if (e.keyCode === 82) resetButtonHandler();
   if (pause) return;
+  let dir = 0;
+
   if (e.keyCode === 83 || e.keyCode === 40) {
     // 's' or down
     playerDrop();
   } else if (e.keyCode === 65 || e.keyCode === 37) {
     // 'a' or left
-    playerMove(-1);
+    dir = -1;
   } else if (e.keyCode === 68 || e.keyCode === 39) {
     // 'd' or right
-    playerMove(1);
+    dir = 1;
   } else if (e.keyCode === 87) {
     // 'w' or rotate CW
     playerRotate(-1);
@@ -368,6 +376,7 @@ function handleKeyPress(e) {
     // 'space bar' or full drop
     playerDropAll();
   }
+  playerMove(dir);
 }
 // PAUSE THE GAME BUTTON HANDLER
 function pauseButtonHandler() {
@@ -387,7 +396,6 @@ function pauseButtonHandler() {
 }
 // RESET GAME BUTTON HANDLER. reset settings and start the game!
 function resetButtonHandler() {
-  resetSevenBag();
   resetGame();
   startGame();
   pauseBtn.disabled = false;
@@ -428,6 +436,7 @@ function resetGame() {
   updateScore();
   updateLevel();
   updateLines();
+  resetSevenBag();
   playerReset();
 }
 
