@@ -1,6 +1,6 @@
 const NEXTLEVELLINES = 4; // number of lines needed for next level
 const TETROMINOS = ["T", "O", "L", "J", "I", "S", "Z"];
-const START_LEVEL = 10; // default start level
+const START_LEVEL = 8; // default start level
 const ARENA_WIDTH = 10;
 const ARENA_HEIGHT = 24;
 const BG_COLOR = "#000000";
@@ -20,6 +20,7 @@ let dropCounter = 0;
 let dropInterval = 700; // number of milliseconds for each drop
 let lastTime = 0;
 let sevenBag = [];
+let movingTimeout = -1;
 
 // The tetromino pieces
 // Colors of the tetrominos. The INDECES MATTER FOR THIS PROGRAM.
@@ -69,7 +70,8 @@ function setupGame() {
   arena = createMatrix(ARENA_WIDTH, ARENA_HEIGHT);
 
   // Add key press listener
-  document.addEventListener("keydown", handleKeyPress);
+  document.addEventListener("keyup", (e) => stopMoving());
+  document.addEventListener("keydown", handleKeyDown);
 
   // Load up the scores and reset the player.
   updateScore();
@@ -86,7 +88,7 @@ function update(time = 0) {
   lastTime = time;
 
   dropCounter += delta;
-  if (dropCounter > dropInterval / (player.level * 0.8)) playerDrop();
+  if (dropCounter > dropInterval / (player.level * 0.69)) playerDrop();
 
   draw();
   if (pause) return;
@@ -239,6 +241,23 @@ function playerRotate(dir) {
   }
 }
 
+function startMoving(dir) {
+  if (movingTimeout === -1) {
+    moveLoop(dir);
+  }
+}
+
+function stopMoving() {
+  clearTimeout(movingTimeout);
+  movingTimeout = -1;
+}
+
+function moveLoop(dir) {
+  playerMove(dir);
+  console.log(dir);
+  movingTimeout = setTimeout(moveLoop, 60, dir);
+}
+
 // Draws the arena and player piece
 function draw() {
   ctx.fillStyle = BG_COLOR;
@@ -351,8 +370,8 @@ function updateLines() {
   document.getElementById("player-lines").innerText = player.lines;
 }
 
-// ALL THE KEYS THAT ARE USED
-function handleKeyPress(e) {
+// ALL THE KEYS THAT YOU CAN HOLD DOWN
+function handleKeyDown(e) {
   if (e.keyCode === 82) resetButtonHandler();
   if (pause) return;
   let dir = 0;
@@ -360,12 +379,6 @@ function handleKeyPress(e) {
   if (e.keyCode === 83 || e.keyCode === 40) {
     // 's' or down
     playerDrop();
-  } else if (e.keyCode === 65 || e.keyCode === 37) {
-    // 'a' or left
-    dir = -1;
-  } else if (e.keyCode === 68 || e.keyCode === 39) {
-    // 'd' or right
-    dir = 1;
   } else if (e.keyCode === 87) {
     // 'w' or rotate CW
     playerRotate(-1);
@@ -375,9 +388,17 @@ function handleKeyPress(e) {
   } else if (e.keyCode === 32) {
     // 'space bar' or full drop
     playerDropAll();
+  } else if (e.keyCode === 65 || e.keyCode === 37) {
+    // 'a' or left
+    dir = -1;
+  } else if (e.keyCode === 68 || e.keyCode === 39) {
+    // 'd' or right
+    dir = 1;
   }
-  playerMove(dir);
+
+  startMoving(dir);
 }
+
 // PAUSE THE GAME BUTTON HANDLER
 function pauseButtonHandler() {
   if (pause) {
