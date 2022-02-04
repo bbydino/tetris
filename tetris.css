@@ -1,16 +1,16 @@
 * {
   padding: 0;
   margin: 0;
+  font-family: "Press Start 2P", sans-serif;
 }
-body {
+
+.container {
   text-align: center;
   align-items: center;
   display: flex;
   flex-direction: column;
   background: #19132fcb;
   color: rgb(164, 185, 202);
-  font-family: "Press Start 2P", sans-serif;
-  font-size: 1.2em;
 }
 
 label {
@@ -68,7 +68,6 @@ canvas {
 .side {
   display: flex;
   flex-direction: column;
-  padding-left: 5%;
 }
 
 .title,
