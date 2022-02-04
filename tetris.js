@@ -373,6 +373,7 @@ function updateLines() {
 // ALL THE KEYS THAT YOU CAN HOLD DOWN
 function handleKeyDown(e) {
   if (e.keyCode === 82) resetButtonHandler();
+  e.preventDefault(); // don't prevent refresh
   if (pause) return;
   let dir = 0;
 

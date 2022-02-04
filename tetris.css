@@ -5,32 +5,33 @@
 body {
   text-align: center;
   align-items: center;
+  display: flex;
+  flex-direction: column;
   background: #19132fcb;
   color: rgb(164, 185, 202);
-  font-family: 'Press Start 2P', sans-serif;
+  font-family: "Press Start 2P", sans-serif;
   font-size: 1.2em;
-  display: flex;
-  flex-direction: row;
 }
 
 label {
-  font-family: 'Press Start 2P', sans-serif;
+  font-family: "Press Start 2P", sans-serif;
   font-size: smaller;
 }
 
-h1, h4 {
+h1,
+h4 {
   text-shadow: rgb(0, 0, 0);
   color: rgb(185, 22, 169);
   padding: 1%;
 }
 
 p {
-  font-size: .7em;
+  font-size: 0.7em;
   padding: 1px;
 }
 
 button {
-  font-family: 'Press Start 2P', sans-serif;
+  font-family: "Press Start 2P", sans-serif;
   text-align: center;
   width: inherit;
   color: rgb(183, 143, 169);
@@ -40,14 +41,23 @@ button {
   padding: 2%;
 }
 
+canvas {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
 .game {
   display: grid;
+  justify-content: center;
   align-items: center;
   text-align: center;
 }
 
 #status-label {
-  animation: blinker .8s step-end infinite;
+  animation: blinker 0.8s step-end infinite;
 }
 @keyframes blinker {
   50% {
@@ -61,12 +71,15 @@ button {
   padding-left: 5%;
 }
 
-.title, .score, .level, .controls, .sound {
+.title,
+.score,
+.level,
+.controls,
+.sound {
   border: 5px solid rgb(212, 161, 218);
   border-radius: 2px;
   padding: 1%;
 }
-
 
 /* The switch - the box around the slider */
 .switch {
@@ -91,8 +104,8 @@ button {
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 .slider:before {
   position: absolute;
@@ -102,8 +115,8 @@ button {
   left: 4px;
   bottom: 4px;
   background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 input:checked + .slider {
   background-color: rgb(243, 33, 222);
