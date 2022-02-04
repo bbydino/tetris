@@ -255,7 +255,7 @@ function stopMoving() {
 function moveLoop(dir) {
   playerMove(dir);
   console.log(dir);
-  movingTimeout = setTimeout(moveLoop, 60, dir);
+  movingTimeout = setTimeout(moveLoop, 80, dir);
 }
 
 // Draws the arena and player piece
